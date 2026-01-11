@@ -183,12 +183,15 @@ function getHoliday(day, month, lunarDay, lunarMonth) {
 
 // ============ COMPONENTS ============
 
-const DayCell = React.memo(({ day, month, year, isToday, isWeekend, isSunday }) => {
+const DayCell = React.memo(({ day, month, year, isToday, isWeekend, isSunday, isSelected, onToggle }) => {
   const [lunarDay, lunarMonth] = convertSolar2Lunar(day, month, year);
   const holiday = getHoliday(day, month, lunarDay, lunarMonth);
-  
+
   return (
-    <div className={`day-cell ${isToday ? 'today' : ''} ${isSunday ? 'sunday' : isWeekend ? 'saturday' : ''}`}>
+    <div
+      className={`day-cell ${isToday ? 'today' : ''} ${isSunday ? 'sunday' : isWeekend ? 'saturday' : ''} ${isSelected ? 'selected' : ''}`}
+      onClick={() => onToggle(day, month, year)}
+    >
       <div className="solar-day">{day}</div>
       <div className="lunar-day">{lunarDay}/{lunarMonth}</div>
       {holiday && <div className="holiday-dot" title={holiday}></div>}
@@ -196,24 +199,26 @@ const DayCell = React.memo(({ day, month, year, isToday, isWeekend, isSunday }) 
   );
 });
 
-const MonthCalendar = React.memo(({ month, year }) => {
+const MonthCalendar = React.memo(({ month, year, selectedDates, onToggleDate }) => {
   const daysInMonth = new Date(year, month, 0).getDate();
   const firstDay = new Date(year, month - 1, 1).getDay();
   const today = new Date();
   const isCurrentMonth = today.getMonth() + 1 === month && today.getFullYear() === year;
-  
+
   const days = [];
   for (let i = 0; i < firstDay; i++) {
     days.push(<div key={`empty-${i}`} className="day-cell empty"></div>);
   }
-  
+
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month - 1, day);
     const dayOfWeek = date.getDay();
     const isToday = isCurrentMonth && today.getDate() === day;
     const isSunday = dayOfWeek === 0;
     const isWeekend = dayOfWeek === 6;
-    
+    const dateKey = `${year}-${month}-${day}`;
+    const isSelected = selectedDates.has(dateKey);
+
     days.push(
       <DayCell
         key={day}
@@ -223,6 +228,8 @@ const MonthCalendar = React.memo(({ month, year }) => {
         isToday={isToday}
         isWeekend={isWeekend}
         isSunday={isSunday}
+        isSelected={isSelected}
+        onToggle={onToggleDate}
       />
     );
   }
@@ -271,6 +278,14 @@ const AdBanner = ({ type }) => {
 export default function App() {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [years, setYears] = useState([new Date().getFullYear()]);
+  const [selectedDates, setSelectedDates] = useState(() => {
+    try {
+      const saved = localStorage.getItem('selectedDates');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch (error) {
+      return new Set();
+    }
+  });
   const observerTarget = useRef(null);
   const yearRefs = useRef({});
   
@@ -323,6 +338,27 @@ export default function App() {
     }
     scrollToYear(newYear);
   };
+
+  const toggleDateSelection = useCallback((day, month, year) => {
+    const dateKey = `${year}-${month}-${day}`;
+    setSelectedDates(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dateKey)) {
+        newSet.delete(dateKey);
+      } else {
+        newSet.add(dateKey);
+      }
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('selectedDates', JSON.stringify([...newSet]));
+      } catch (error) {
+        console.error('Failed to save selected dates:', error);
+      }
+
+      return newSet;
+    });
+  }, []);
   
   return (
     <div className="app">
@@ -546,6 +582,7 @@ export default function App() {
           justify-content: center;
           position: relative;
           transition: background 0.2s;
+          border: 2px solid transparent;
         }
         
         .day-cell:hover:not(.empty) {
@@ -580,6 +617,17 @@ export default function App() {
         .day-cell.today {
           background: #fff3cd;
           border: 2px solid #ffc107;
+        }
+
+        .day-cell.selected {
+          background: #d1e7dd;
+          border: 2px solid #198754;
+        }
+
+        .day-cell.selected.today {
+          background: linear-gradient(135deg, #fff3cd 0%, #d1e7dd 100%);
+          border: 2px solid #198754;
+          box-shadow: 0 0 0 2px #ffc107 inset;
         }
         
         .holiday-dot {
@@ -688,7 +736,12 @@ export default function App() {
           <div className="months-grid">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month, index) => (
               <React.Fragment key={`${year}-${month}`}>
-                <MonthCalendar month={month} year={year} />
+                <MonthCalendar
+                  month={month}
+                  year={year}
+                  selectedDates={selectedDates}
+                  onToggleDate={toggleDateSelection}
+                />
                 {index === 5 && <AdBanner type="in-feed" />}
               </React.Fragment>
             ))}

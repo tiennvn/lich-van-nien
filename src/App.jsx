@@ -201,7 +201,9 @@ const DayCell = React.memo(({ day, month, year, isToday, isWeekend, isSunday, is
 
 const MonthCalendar = React.memo(({ month, year, selectedDates, onToggleDate }) => {
   const daysInMonth = new Date(year, month, 0).getDate();
-  const firstDay = new Date(year, month - 1, 1).getDay();
+  const firstDayRaw = new Date(year, month - 1, 1).getDay();
+  // Convert Sunday (0) to 7, and shift Monday to 1
+  const firstDay = firstDayRaw === 0 ? 6 : firstDayRaw - 1;
   const today = new Date();
   const isCurrentMonth = today.getMonth() + 1 === month && today.getFullYear() === year;
 
@@ -233,15 +235,15 @@ const MonthCalendar = React.memo(({ month, year, selectedDates, onToggleDate }) 
       />
     );
   }
-  
+
   const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
                       'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
-  
+
   return (
     <div className="month-calendar">
       <div className="month-header">{monthNames[month - 1]} {year}</div>
       <div className="weekday-header">
-        {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(day => (
+        {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(day => (
           <div key={day} className="weekday">{day}</div>
         ))}
       </div>

@@ -251,6 +251,7 @@ const MonthCalendar = React.memo(({ month, year, selectedDates, onToggleDate }) 
 });
 
 const AdBanner = ({ type }) => {
+  return null;
   if (type === 'top' || type === 'bottom') {
     return (
       <div className="ad-banner desktop-ad">

@@ -398,31 +398,31 @@ export default function App() {
           z-index: 100;
           text-align: center;
           color: white;
-          margin-bottom: 30px;
+          margin-bottom: 20px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          padding: 20px 0;
+          padding: 10px 0;
           box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        
+
         .header h1 {
-          font-size: 2.5rem;
-          margin-bottom: 10px;
+          font-size: 1.5rem;
+          margin-bottom: 5px;
           text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
-        
+
         .year-selector {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 20px;
-          margin: 20px 0;
+          gap: 15px;
+          margin: 0;
         }
         
         .year-btn {
           background: white;
           border: none;
-          width: 40px;
-          height: 40px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
           cursor: pointer;
           display: flex;
@@ -430,7 +430,7 @@ export default function App() {
           justify-content: center;
           transition: all 0.3s;
           box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-          font-size: 18px;
+          font-size: 14px;
           color: #667eea;
           font-weight: bold;
         }
@@ -442,21 +442,21 @@ export default function App() {
         
         .year-display {
           background: rgba(255,255,255,0.2);
-          padding: 15px 40px;
-          border-radius: 30px;
+          padding: 8px 24px;
+          border-radius: 20px;
           backdrop-filter: blur(10px);
         }
-        
+
         .year-text {
-          font-size: 1.8rem;
+          font-size: 1.3rem;
           font-weight: bold;
           color: white;
         }
-        
+
         .can-chi {
-          font-size: 1rem;
+          font-size: 0.85rem;
           color: rgba(255,255,255,0.9);
-          margin-top: 5px;
+          margin-top: 2px;
         }
         
         .ad-banner {
@@ -508,7 +508,7 @@ export default function App() {
         
         .year-section {
           margin-bottom: 60px;
-          scroll-margin-top: 180px;
+          scroll-margin-top: 120px;
         }
         
         .year-title {
@@ -651,29 +651,39 @@ export default function App() {
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
           }
-          
+
           .header h1 {
-            font-size: 2rem;
+            font-size: 1.3rem;
           }
         }
-        
+
         @media (max-width: 768px) {
           .app {
             padding: 10px;
             padding-bottom: 70px;
           }
-          
+
           .months-grid {
             grid-template-columns: 1fr;
             gap: 15px;
           }
-          
+
           .header h1 {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
           }
-          
+
           .year-text {
-            font-size: 1.4rem;
+            font-size: 1.1rem;
+          }
+
+          .can-chi {
+            font-size: 0.75rem;
+          }
+
+          .year-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
           }
           
           .desktop-ad {

@@ -6,12 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Vietnamese Lunar Calendar (Lịch Vạn Niên Việt Nam) - A React-based web application that displays both solar and lunar calendar dates with Vietnamese holidays and traditional Can-Chi year naming.
 
+**Live Site**: https://tiennvn.github.io/lich-van-nien
+
 ## Common Commands
 
 - **Development server**: `npm run dev` - Starts Vite dev server with hot module replacement
 - **Build**: `npm run build` - Creates production build in `dist/` directory
 - **Lint**: `npm run lint` - Runs ESLint on all JavaScript/JSX files
 - **Preview**: `npm run preview` - Preview production build locally
+- **Deploy**: `npm run deploy` - Build and deploy to GitHub Pages (gh-pages branch)
 
 ## Architecture
 
@@ -49,18 +52,30 @@ The entire application is contained within `src/App.jsx` as a single-file compon
 
 ### State Management
 
-- Minimal React hooks-based state (useState, useEffect, useRef)
+- Minimal React hooks-based state (useState, useEffect, useRef, useCallback)
 - `years`: Array of years to display (grows with infinite scroll)
 - `currentYear`: Currently selected year for navigation
+- `selectedDates`: Set of selected dates stored in localStorage
 - `observerTarget`: Ref for IntersectionObserver trigger
 - `yearRefs`: Object mapping years to DOM refs for scroll navigation
+
+### Key Features
+
+1. **Date Selection**: Click dates to select/deselect with visual highlighting (green background)
+2. **LocalStorage Persistence**: Selected dates persist across page refreshes
+3. **Sticky Header**: Compact header stays at top while scrolling
+4. **Smooth Navigation**: Year navigation scrolls smoothly with header offset
+5. **Holiday Indicators**: Red dots mark Vietnamese solar and lunar holidays
+6. **Responsive Design**: Adapts to desktop, tablet, and mobile screens
 
 ### Styling Approach
 
 All styles are inline in a `<style>` JSX block within App.jsx. Responsive breakpoints:
-- Desktop: 3-column month grid, 728x90 banner ads
+- Desktop: 3-column month grid, centered layout (max-width: 1400px)
 - Tablet (≤1024px): 2-column month grid
-- Mobile (≤768px): 1-column grid, sticky 320x50 ads, in-feed ads
+- Mobile (≤768px): 1-column grid
+
+Color scheme: Purple/violet gradient background (#667eea to #764ba2)
 
 ## Development Notes
 
@@ -86,3 +101,15 @@ Update the constant objects:
 ### Responsive Design
 
 The app uses CSS Grid throughout. When adding features, maintain the existing breakpoints at 1024px and 768px to ensure consistent mobile experience.
+
+## Deployment
+
+The app is deployed to GitHub Pages using the `gh-pages` package:
+- **Repository**: https://github.com/tiennvn/lich-van-nien
+- **Live URL**: https://tiennvn.github.io/lich-van-nien
+- **Deployment branch**: `gh-pages` (auto-managed by gh-pages package)
+- **Base path**: `/lich-van-nien/` (configured in vite.config.js)
+
+To deploy updates:
+1. Make your changes
+2. Run `npm run deploy` (automatically builds and publishes)

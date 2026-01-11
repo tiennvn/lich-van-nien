@@ -289,6 +289,8 @@ export default function App() {
       return new Set();
     }
   });
+  const [showYearPicker, setShowYearPicker] = useState(false);
+  const [yearInput, setYearInput] = useState('');
   const observerTarget = useRef(null);
   const yearRefs = useRef({});
   
@@ -362,6 +364,43 @@ export default function App() {
       return newSet;
     });
   }, []);
+
+  const handleYearPickerSubmit = useCallback((year) => {
+    const yearNum = parseInt(year);
+    if (yearNum >= 1900 && yearNum <= 2100) {
+      setCurrentYear(yearNum);
+      if (!years.includes(yearNum)) {
+        setYears(prev => [...prev, yearNum].sort((a, b) => a - b));
+      }
+      scrollToYear(yearNum);
+      setShowYearPicker(false);
+      setYearInput('');
+    }
+  }, [years]);
+
+  const generateYearRange = useCallback(() => {
+    // If search input has 3 or more characters, filter years based on the search
+    if (yearInput && yearInput.length >= 3) {
+      const searchStr = yearInput.toString();
+      const yearsList = [];
+      for (let y = 1900; y <= 2100; y++) {
+        if (y.toString().includes(searchStr)) {
+          yearsList.push(y);
+        }
+      }
+      return yearsList;
+    }
+
+    // Default: show 5 years before and after current year
+    const currentYearNum = currentYear;
+    const startYear = currentYearNum - 5;
+    const endYear = currentYearNum + 5;
+    const yearsList = [];
+    for (let y = startYear; y <= endYear; y++) {
+      yearsList.push(y);
+    }
+    return yearsList;
+  }, [yearInput, currentYear]);
   
   return (
     <div className="app">
@@ -447,6 +486,13 @@ export default function App() {
           padding: 8px 24px;
           border-radius: 20px;
           backdrop-filter: blur(10px);
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+
+        .year-display:hover {
+          background: rgba(255,255,255,0.3);
+          transform: scale(1.05);
         }
 
         .year-text {
@@ -461,6 +507,148 @@ export default function App() {
           margin-top: 2px;
         }
         
+        .year-picker-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 200;
+        }
+
+        .year-picker-modal {
+          background: white;
+          border-radius: 15px;
+          padding: 20px;
+          max-width: 400px;
+          width: 90%;
+          max-height: 80vh;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .year-picker-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 15px;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #e9ecef;
+        }
+
+        .year-picker-title {
+          font-size: 1.2rem;
+          font-weight: bold;
+          color: #667eea;
+        }
+
+        .year-picker-close {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          color: #6c757d;
+          padding: 0;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          transition: background 0.2s;
+        }
+
+        .year-picker-close:hover {
+          background: #f8f9fa;
+        }
+
+        .year-input-group {
+          margin-bottom: 15px;
+        }
+
+        .year-input-label {
+          display: block;
+          margin-bottom: 5px;
+          font-size: 0.9rem;
+          color: #495057;
+          font-weight: 500;
+        }
+
+        .year-input-wrapper {
+          display: flex;
+          gap: 10px;
+        }
+
+        .year-input {
+          flex: 1;
+          padding: 10px;
+          border: 2px solid #e9ecef;
+          border-radius: 8px;
+          font-size: 1rem;
+          outline: none;
+          transition: border-color 0.2s;
+        }
+
+        .year-input:focus {
+          border-color: #667eea;
+        }
+
+        .year-input-submit {
+          padding: 10px 20px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: bold;
+          transition: transform 0.2s;
+        }
+
+        .year-input-submit:hover {
+          transform: scale(1.05);
+        }
+
+        .year-list-container {
+          overflow-y: auto;
+          max-height: 400px;
+          border: 2px solid #e9ecef;
+          border-radius: 8px;
+          padding: 10px;
+        }
+
+        .year-list {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 8px;
+        }
+
+        .year-list-item {
+          padding: 12px;
+          border: 2px solid #e9ecef;
+          border-radius: 8px;
+          text-align: center;
+          cursor: pointer;
+          background: white;
+          transition: all 0.2s;
+          font-weight: 500;
+        }
+
+        .year-list-item:hover {
+          background: #f8f9fa;
+          border-color: #667eea;
+        }
+
+        .year-list-item.current {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-color: #667eea;
+        }
+
         .ad-banner {
           margin: 20px auto;
           text-align: center;
@@ -661,57 +849,117 @@ export default function App() {
 
         @media (max-width: 768px) {
           .app {
-            padding: 10px;
-            padding-bottom: 70px;
+            padding: 5px;
+            padding-bottom: 60px;
           }
 
           .months-grid {
             grid-template-columns: 1fr;
-            gap: 15px;
+            gap: 10px;
+          }
+
+          .header {
+            padding: 6px 0;
+            margin-bottom: 10px;
           }
 
           .header h1 {
-            font-size: 1.2rem;
+            font-size: 1rem;
+            margin-bottom: 3px;
+          }
+
+          .year-selector {
+            gap: 10px;
           }
 
           .year-text {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
           }
 
           .can-chi {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            margin-top: 1px;
+          }
+
+          .year-display {
+            padding: 5px 15px;
           }
 
           .year-btn {
-            width: 28px;
-            height: 28px;
-            font-size: 12px;
+            width: 26px;
+            height: 26px;
+            font-size: 11px;
           }
-          
+
+          .year-section {
+            margin-bottom: 30px;
+            scroll-margin-top: 70px;
+          }
+
+          .year-title {
+            font-size: 1.3rem;
+            margin: 20px 0 15px;
+            padding: 10px;
+          }
+
+          .month-calendar {
+            border-radius: 10px;
+          }
+
+          .month-header {
+            padding: 8px;
+            font-size: 0.9rem;
+          }
+
+          .weekday-header {
+            border-bottom: 1px solid #e9ecef;
+          }
+
+          .weekday {
+            padding: 5px;
+            font-size: 0.7rem;
+          }
+
+          .days-grid {
+            gap: 0.5px;
+          }
+
           .desktop-ad {
             display: none;
           }
-          
+
           .mobile-sticky-ad, .in-feed-ad {
             display: block;
           }
-          
+
           .day-cell {
-            min-height: 50px;
-            padding: 6px 2px;
+            min-height: 42px;
+            padding: 4px 2px;
           }
-          
+
           .solar-day {
-            font-size: 1rem;
+            font-size: 0.85rem;
           }
-          
+
           .lunar-day {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
+            margin-top: 1px;
           }
-          
+
+          .holiday-dot {
+            width: 4px;
+            height: 4px;
+            top: 3px;
+            right: 3px;
+          }
+
           .year-section:nth-child(3n) .in-feed-ad {
             display: block;
-            margin: 20px 0;
+            margin: 15px 0;
+          }
+
+          .ad-banner {
+            margin: 10px auto;
           }
         }
       `}</style>
@@ -722,7 +970,7 @@ export default function App() {
           <button className="year-btn" onClick={handlePrevYear}>
             ◀
           </button>
-          <div className="year-display">
+          <div className="year-display" onClick={() => setShowYearPicker(true)}>
             <div className="year-text">{currentYear}</div>
             <div className="can-chi">{getCanChiYear(currentYear)}</div>
           </div>
@@ -731,7 +979,58 @@ export default function App() {
           </button>
         </div>
       </div>
-      
+
+      {showYearPicker && (
+        <div className="year-picker-overlay" onClick={() => setShowYearPicker(false)}>
+          <div className="year-picker-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="year-picker-header">
+              <div className="year-picker-title">Chọn năm</div>
+              <button className="year-picker-close" onClick={() => setShowYearPicker(false)}>
+                ×
+              </button>
+            </div>
+
+            <div className="year-input-group">
+              <label className="year-input-label">Tìm kiếm năm:</label>
+              <div className="year-input-wrapper">
+                <input
+                  type="number"
+                  className="year-input"
+                  value={yearInput}
+                  onChange={(e) => setYearInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && yearInput) {
+                      handleYearPickerSubmit(yearInput);
+                    }
+                  }}
+                  placeholder="Nhập năm..."
+                />
+                <button
+                  className="year-input-submit"
+                  onClick={() => yearInput && handleYearPickerSubmit(yearInput)}
+                >
+                  Đi
+                </button>
+              </div>
+            </div>
+
+            <div className="year-list-container">
+              <div className="year-list">
+                {generateYearRange().map((year) => (
+                  <div
+                    key={year}
+                    className={`year-list-item ${year === currentYear ? 'current' : ''}`}
+                    onClick={() => handleYearPickerSubmit(year)}
+                  >
+                    {year}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <AdBanner type="top" />
       
       {years.map((year, yearIndex) => (

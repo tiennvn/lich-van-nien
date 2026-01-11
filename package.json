@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://tienn.github.io/lich-van-nien",
+  "homepage": "https://tiennvn.github.io/lich-van-nien",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

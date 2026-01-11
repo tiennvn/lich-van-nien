@@ -1,0 +1,88 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+Vietnamese Lunar Calendar (Lịch Vạn Niên Việt Nam) - A React-based web application that displays both solar and lunar calendar dates with Vietnamese holidays and traditional Can-Chi year naming.
+
+## Common Commands
+
+- **Development server**: `npm run dev` - Starts Vite dev server with hot module replacement
+- **Build**: `npm run build` - Creates production build in `dist/` directory
+- **Lint**: `npm run lint` - Runs ESLint on all JavaScript/JSX files
+- **Preview**: `npm run preview` - Preview production build locally
+
+## Architecture
+
+### Single-Component Architecture
+
+The entire application is contained within `src/App.jsx` as a single-file component (~686 lines). This monolithic structure includes:
+
+1. **Lunar Calendar Utilities** (lines 3-140)
+   - `jdFromDate` / `jdToDate`: Julian Day conversions
+   - `getNewMoonDay`: Calculates new moon dates for lunar month boundaries
+   - `getSunLongitude`: Astronomical calculations for solar terms
+   - `convertSolar2Lunar`: Main conversion function (solar → lunar calendar)
+   - Algorithm based on Hồ Ngọc Đức's Vietnamese lunar calendar calculations
+
+2. **Can-Chi System** (lines 142-150)
+   - Traditional 10 Heavenly Stems (Can) and 12 Earthly Branches (Chi)
+   - `getCanChiYear`: Generates Vietnamese zodiac year names (e.g., "Giáp Tý")
+
+3. **Holiday Definitions** (lines 152-182)
+   - `SOLAR_HOLIDAYS`: Gregorian calendar holidays
+   - `LUNAR_HOLIDAYS`: Vietnamese traditional holidays (Tết, Vu Lan, etc.)
+   - `getHoliday`: Holiday lookup function
+
+4. **React Components** (lines 184-269)
+   - `DayCell`: Individual calendar day with solar/lunar dates and holiday indicator
+   - `MonthCalendar`: Month view with 7-day week grid
+   - `AdBanner`: Placeholder components for Google AdSense integration
+   - All components use React.memo for performance optimization
+
+5. **Main App Component** (lines 271-686)
+   - Infinite scroll calendar (loads additional years on scroll)
+   - Year navigation with smooth scrolling
+   - IntersectionObserver for lazy loading future years
+   - Inline CSS-in-JS styling for entire application
+
+### State Management
+
+- Minimal React hooks-based state (useState, useEffect, useRef)
+- `years`: Array of years to display (grows with infinite scroll)
+- `currentYear`: Currently selected year for navigation
+- `observerTarget`: Ref for IntersectionObserver trigger
+- `yearRefs`: Object mapping years to DOM refs for scroll navigation
+
+### Styling Approach
+
+All styles are inline in a `<style>` JSX block within App.jsx. Responsive breakpoints:
+- Desktop: 3-column month grid, 728x90 banner ads
+- Tablet (≤1024px): 2-column month grid
+- Mobile (≤768px): 1-column grid, sticky 320x50 ads, in-feed ads
+
+## Development Notes
+
+### Modifying Calendar Logic
+
+When updating lunar conversion algorithms:
+- The timezone parameter defaults to 7 (Vietnam GMT+7)
+- All Julian Day calculations use integer math for precision
+- Leap month detection is handled in `getLeapMonthOffset`
+
+### Performance Considerations
+
+- `DayCell` and `MonthCalendar` are memoized to prevent unnecessary re-renders
+- Each day cell performs a solar-to-lunar conversion on render
+- Consider caching conversion results if performance degrades
+
+### Adding Holidays
+
+Update the constant objects:
+- `SOLAR_HOLIDAYS`: Use format `'day-month': 'Holiday Name'`
+- `LUNAR_HOLIDAYS`: Same format for lunar calendar dates
+
+### Responsive Design
+
+The app uses CSS Grid throughout. When adding features, maintain the existing breakpoints at 1024px and 768px to ensure consistent mobile experience.
